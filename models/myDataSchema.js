@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 // define the Schema (the structure of the article)
 const articleSchema = new Schema({
-  Username:String
+  Username: { type: String, required: true }
 });
 
 // Create a model based on that schema

@@ -1,51 +1,50 @@
-require("dotenv").config(); // Load environment variables
-const express = require ('express')
-const app = express()
-const port = 3000
+require("dotenv").config(); // Load variables from .env
+
+const express = require('express');
+const app = express();
+const port = 3000;
 const mongoose = require('mongoose');
 
-app.use(express.json());
+// Import your schema
+const Mydata = require("./models/myDataSchema");
 
+// Middleware to parse JSON & form data
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve home.html when visiting "/"
+app.get("/", (req, res) => {
+  res.sendFile("views/home.html", { root: __dirname });
+});
 
-const Mydata = require("./models/myDataSchema")
+// Simple success page after POST
+app.get("/index.html", (req, res) => {
+  res.send("<h1>Data sent successfully</h1>");
+});
 
-
-app.get("/",(req,res) =>
-{
-   res.sendFile("./views/home.html", {root: __dirname});
-}
-);
-
-app.get("/index.html",(req,res) =>
-{
-   res.send("<h1>Data sent successfully</h1>")
-}
-);
-
-
+// Connect to MongoDB using environment variable
 mongoose.connect(process.env.MONGO_URI)
-.then(()=>{
-  app.listen(port, () => {
-  console.log(`http://localhost:${port}/`)
-})
-})
-.catch((err)=>{console.log(err)})
-;
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    app.listen(port, () => {
+      console.log(`🚀 Server running at http://localhost:${port}/`);
+    });
+  })
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 app.post("/", (req, res) => {
-  console.log(req.body)
+  console.log("📦 Received data:", req.body);
 
-  const mydata = new Mydata(req.body)
+  const mydata = new Mydata(req.body);
 
-  mydata.save().then(()=> 
-  {
-      res.redirect("/index.html")
-  }).catch((err)=>{
-    console.log(err)
-  });
-})
-
-
+  mydata.save()
+    .then(() => {
+      console.log("✅ Data saved to MongoDB");
+      res.redirect("/index.html");
+    })
+    .catch((err) => {
+      console.error("❌ Error saving data:", err.message); // <-- log message
+      res.status(500).send("Error saving data: " + err.message);
+    });
+});
 
