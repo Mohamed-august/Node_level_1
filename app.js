@@ -1,9 +1,13 @@
+require("dotenv").config(); // Load environment variables
 const express = require ('express')
 const app = express()
 const port = 3000
 const mongoose = require('mongoose');
 
 app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
+
 
 const Mydata = require("./models/myDataSchema")
 
@@ -21,7 +25,7 @@ app.get("/index.html",(req,res) =>
 );
 
 
-mongoose.connect("mongodb+srv://Mohamed_Hossam:2MsyAKapB4hYsGOt@cluster0.388xnxa.mongodb.net/all-data?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGO_URI)
 .then(()=>{
   app.listen(port, () => {
   console.log(`http://localhost:${port}/`)
