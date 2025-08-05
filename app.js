@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load variables from .env
+require ("dotenv").config(); // Load variables from .env
 
 const express = require('express');
 const app = express();
@@ -8,13 +8,40 @@ const mongoose = require('mongoose');
 // Import your schema
 const Mydata = require("./models/myDataSchema");
 
+app.set('view engine', 'ejs')
+app.use(express.static('public'))
+
+// Auto refresh
+const path = require("path");
+const livereload = require("livereload");
+const liveReloadServer = livereload.createServer();
+liveReloadServer.watch(path.join(__dirname, 'public'));
+ 
+ 
+const connectLivereload = require("connect-livereload");
+app.use(connectLivereload());
+ 
+liveReloadServer.server.once("connection", () => {
+  setTimeout(() => {
+    liveReloadServer.refresh("/");
+  }, 100);
+});
+
+
 // Middleware to parse JSON & form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve home.html when visiting "/"
 app.get("/", (req, res) => {
-  res.sendFile("views/home.html", { root: __dirname });
+
+
+
+  // result is array of objects
+  Mydata.find().then ( (result)=>{res.render("home",{mytitle: "Home page", arr: result})}).catch((err)=> {console.log(error)})
+
+ 
+  
 });
 
 // Simple success page after POST
@@ -47,4 +74,5 @@ app.post("/", (req, res) => {
       res.status(500).send("Error saving data: " + err.message);
     });
 });
+
 
